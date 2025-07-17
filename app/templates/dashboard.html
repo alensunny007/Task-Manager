@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Manager Dashboard</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="font-sans bg-blue-500 min-h-screen text-gray-800">
+    <div class="container max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
+        <!-- Header -->
+        <header class="bg-white rounded-xl shadow-md p-6 mb-8 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="text-center sm:text-left">
+                <h1 class="text-3xl font-bold text-gray-800">Task Manager Dashboard</h1>
+                <p class="text-gray-500 mt-1">Stay on top of your tasks and productivity</p>
+            </div>
+            <div class="flex items-center gap-4">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center text-white text-lg font-semibold">
+                    {{ session['username']|first|upper if session['username'] else 'U' }}
+                </div>
+                <div>
+                    <p class="text-gray-800 font-semibold">{{ session['username'] }}</p>
+                </div>
+                <a href="{{ url_for('views.logout_page') }}" class="bg-red-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-red-600 transition-colors flex items-center gap-2">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+        </header>
+
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition-shadow duration-300">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-12 h-12 rounded-lg bg-blue-500 flex items-center justify-center text-white">
+                        <i class="fas fa-tasks"></i>
+                    </div>
+                    <span class="text-green-500 text-sm font-medium">+10%</span>
+                </div>
+                <h3 class="text-3xl font-bold text-gray-800">30</h3>
+                <p class="text-gray-500 mt-1">Total Tasks</p>
+            </div>
+            <div class="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition-shadow duration-300">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-12 h-12 rounded-lg bg-green-500 flex items-center justify-center text-white">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <span class="text-green-500 text-sm font-medium">+15%</span>
+                </div>
+                <h3 class="text-3xl font-bold text-gray-800">22</h3>
+                <p class="text-gray-500 mt-1">Completed</p>
+            </div>
+            <div class="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition-shadow duration-300">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-12 h-12 rounded-lg bg-yellow-500 flex items-center justify-center text-white">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <span class="text-red-500 text-sm font-medium">-5%</span>
+                </div>
+                <h3 class="text-3xl font-bold text-gray-800">6</h3>
+                <p class="text-gray-500 mt-1">Pending</p>
+            </div>
+            <div class="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition-shadow duration-300">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-12 h-12 rounded-lg bg-red-500 flex items-center justify-center text-white">
+                        <i class="fas fa-exclamation-circle"></i>
+                    </div>
+                    <span class="text-red-500 text-sm font-medium">-20%</span>
+                </div>
+                <h3 class="text-3xl font-bold text-gray-800">2</h3>
+                <p class="text-gray-500 mt-1">Overdue</p>
+            </div>
+        </div>
+
+        <!-- Recent Tasks -->
+        <div class="bg-white rounded-xl shadow-md p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-semibold text-gray-800">Recent Tasks</h2>
+                <a href="#" class="bg-blue-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors flex items-center gap-2">
+                    <i class="fas fa-plus"></i> New Task
+                </a>
+            </div>
+            <div class="space-y-4">
+                <div class="flex items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                    <div class="task-checkbox w-5 h-5 rounded-full border-2 border-blue-500 flex items-center justify-center cursor-pointer mr-4">
+                        <i class="fas fa-check hidden"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="font-semibold text-gray-800">Finish UI Design</p>
+                        <p class="text-sm text-gray-500">Due: Today • <span class="bg-red-100 text-red-600 px-2 py-1 rounded-full text-xs">High</span></p>
+                    </div>
+                </div>
+                <div class="flex items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                    <div class="task-checkbox w-5 h-5 rounded-full border-2 bg-green-500 border-green-500 text-white flex items-center justify-center cursor-pointer mr-4">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="font-semibold text-gray-800">Code Review</p>
+                        <p class="text-sm text-gray-500">Completed • <span class="bg-yellow-100 text-yellow-600 px-2 py-1 rounded-full text-xs">Medium</span></p>
+                    </div>
+                </div>
+                <div class="flex items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                    <div class="task-checkbox w-5 h-5 rounded-full border-2 border-blue-500 flex items-center justify-center cursor-pointer mr-4">
+                        <i class="fas fa-check hidden"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="font-semibold text-gray-800">Database Migration</p>
+                        <p class="text-sm text-gray-500">Due: Tomorrow • <span class="bg-green-100 text-green-600 px-2 py-1 rounded-full text-xs">Low</span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Toggle task completion
+        document.querySelectorAll('.task-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('click', function() {
+                const checkIcon = this.querySelector('i');
+                checkIcon.classList.toggle('hidden');
+                this.classList.toggle('bg-green-500');
+                this.classList.toggle('border-green-500');
+                this.classList.toggle('border-blue-500');
+                const taskItem = this.closest('.flex');
+                taskItem.style.opacity = checkIcon.classList.contains('hidden') ? '1' : '0.7';
+            });
+        });
+    </script>
+</body>
+</html>

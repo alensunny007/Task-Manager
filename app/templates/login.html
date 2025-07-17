@@ -34,18 +34,18 @@
     </script>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
-    <!-- Background Pattern -->
+    
     <div class="absolute inset-0 opacity-10">
         <div class="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,rgba(99,102,241,0.1),transparent_50%)]"></div>
     </div>
 
-    <!-- Main Container -->
+  
     <div class="relative min-h-screen flex items-center justify-center px-4 py-8">
-        <!-- Login Form Container -->
+     
         <div class="w-full max-w-md animate-fade-in">
-            <!-- Header -->
+        
             <div class="text-center mb-8">
-                <!-- Back to Home Link -->
+                
                 <a href="/" class="inline-flex items-center text-blue-600 hover:text-blue-800 transition-colors duration-300 mb-6">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
@@ -53,7 +53,7 @@
                     Back to Home
                 </a>
 
-                <!-- App Icon -->
+       
                 <div class="mx-auto mb-4 w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg animate-bounce-gentle">
                     <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
@@ -64,13 +64,21 @@
                 <p class="text-gray-600">Sign in to your Task Manager account</p>
             </div>
 
-            <!-- Login Form -->
+           
             <div class="bg-white/70 backdrop-blur-sm rounded-2xl shadow-xl p-8 animate-slide-up">
-                <form method="POST" action="/login" class="space-y-6">
-                    <!-- Email Field -->
+                {% with messages=get_flashed_messages(with_categories=true)%}
+                {% if messages %}
+                {% for category,message in messages%}
+                    <p class="text-{{ 'red-500' if category == 'danger' else 'green-500' }}
+                     text-sm mb-4 text-center">{{ message }}</p>
+                {% endfor %}
+                {% endif %}
+                {% endwith %}
+                <form method="POST" action="{{url_for('views.login_page')}}" class="space-y-6">
+                    {{form.hidden_tag()}}
                     <div>
-                        <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
-                            Email Address
+                        <label for="username" class="block text-sm font-medium text-gray-700 mb-2">
+                            {{form.username.label}}
                         </label>
                         <div class="relative">
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -78,16 +86,15 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"/>
                                 </svg>
                             </div>
-                            <input type="email" id="email" name="email" required
-                                class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 bg-white/80 backdrop-blur-sm"
-                                placeholder="Enter your email">
+                             {{ form.username(class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 bg-white/80 backdrop-blur-sm", id="username", placeholder="Enter your username") }}
+                            {% if form.username.errors %}
+                                <p class="text-red-500 text-xs mt-1">{{ form.username.errors[0] }}</p>
+                            {% endif %}
                         </div>
                     </div>
-
-                    <!-- Password Field -->
                     <div>
                         <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
-                            Password
+                            {{form.password.label}}
                         </label>
                         <div class="relative">
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -95,25 +102,26 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
                                 </svg>
                             </div>
-                            <input type="password" id="password" name="password" required
-                                class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 bg-white/80 backdrop-blur-sm"
-                                placeholder="Enter your password">
+                            {{ form.password(class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 bg-white/80 backdrop-blur-sm", id="password", placeholder="Enter your password") }}
+                            {% if form.password.errors %}
+                                <p class="text-red-500 text-xs mt-1">{{ form.password.errors[0] }}</p>
+                            {% endif %}
                         </div>
                     </div>
 
-                    <!-- Forgot Password -->
+              
                     <div class="text-right">
                         <a href="#" class="text-sm text-blue-600 hover:text-blue-800 transition-colors duration-300">
                             Forgot password?
                         </a>
                     </div>
 
-                    <!-- Submit Button -->
-                    <button type="submit" class="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 px-4 rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-                        Sign In
-                    </button>
+                  
+                    {{ form.submit(class="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 px-4 
+                    rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 
+                    transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2") }}
 
-                    <!-- Divider -->
+         
                     <div class="relative my-6">
                         <div class="absolute inset-0 flex items-center">
                             <div class="w-full border-t border-gray-300"></div>
@@ -123,7 +131,7 @@
                         </div>
                     </div>
 
-                    <!-- Register Link -->
+           
                     <div class="text-center">
                         <p class="text-sm text-gray-600">
                             Don't have an account?
@@ -137,7 +145,6 @@
         </div>
     </div>
 
-    <!-- Floating Elements -->
     <div class="fixed top-10 right-10 w-20 h-20 bg-blue-200 rounded-full opacity-20 animate-pulse"></div>
     <div class="fixed bottom-10 left-10 w-16 h-16 bg-purple-200 rounded-full opacity-20 animate-pulse" style="animation-delay: 1s;"></div>
 </body>
