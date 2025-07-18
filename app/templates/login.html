@@ -64,16 +64,15 @@
                 <p class="text-gray-600">Sign in to your Task Manager account</p>
             </div>
 
-           
-            <div class="bg-white/70 backdrop-blur-sm rounded-2xl shadow-xl p-8 animate-slide-up">
-                {% with messages=get_flashed_messages(with_categories=true)%}
+            {% with messages=get_flashed_messages(with_categories=true)%}
                 {% if messages %}
                 {% for category,message in messages%}
                     <p class="text-{{ 'red-500' if category == 'danger' else 'green-500' }}
-                     text-sm mb-4 text-center">{{ message }}</p>
+                     text-sm mb-4 text-center ">{{ message }}</p>
                 {% endfor %}
                 {% endif %}
                 {% endwith %}
+            <div class="bg-white/70 backdrop-blur-sm rounded-2xl shadow-xl p-8 animate-slide-up">
                 <form method="POST" action="{{url_for('views.login_page')}}" class="space-y-6">
                     {{form.hidden_tag()}}
                     <div>
