@@ -2,9 +2,7 @@ from flask import Flask
 from .models import db
 from config import Config
 from .routes import views
-from  flask_mail import Mail
-
-mail=Mail()
+from .extension import mail
 
 def create_app():
     app=Flask(__name__)

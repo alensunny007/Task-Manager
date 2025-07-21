@@ -1,6 +1,6 @@
 from .models import User,Task,db
 from flask import render_template,redirect,url_for,flash,Blueprint,session,request
-from .forms import RegisterForm,LoginForm
+from .forms import RegisterForm,LoginForm,ForgotPasswordForm,ResetPasswordForm
 from werkzeug.security import generate_password_hash,check_password_hash
 from .utiils import generate_reset_token,verify_reset_token,send_reset_email
 views=Blueprint('views',__name__)
@@ -18,6 +18,8 @@ def login_required(f):
 @views.route('/')
 @views.route('/home')
 def home_page():
+    if 'user_id' in session:
+        return redirect(url_for('views.dashboard_page'))
     return render_template('home.html')
 
 @views.route('/register',methods=['GET','POST'])
@@ -65,10 +67,10 @@ def login_page():
 
 @views.route('/forgot-password',methods=['GET','POST'])
 def forgot_password():
-    if request.method=='POST':
-        email=request.form.get('email')
+    form=ForgotPasswordForm()
+    if form.validate_on_submit():
+        email=form.email.data
         user=User.query.filter_by(email=email).first()
-
         if user:
             token=generate_reset_token(email)
             reset_url=url_for('views.reset_password',token=token,_external=True)
@@ -77,11 +79,31 @@ def forgot_password():
                 send_reset_email(email,reset_url)
                 flash('Password reset email sent. Check your inbox',category='success')
             except Exception as e:
-                flash('Error sending email. Please try again.',category='error')
+                flash('Error sending email. Please try again.',category='danger')
         else:
             flash('If that email exist, a reset link has been sent.',category='info')
         return redirect(url_for('views.login_page'))
-    return render_template('forgot_password.html')
+    return render_template('forgot_password.html',form=form)
+
+@views.route('/reset_password/<token>',methods=['GET','POST'])
+def reset_password(token):
+    email=verify_reset_token(token)
+    if not email:
+        flash("Invalid or expired reset link",category="danger")
+        return redirect(url_for('views.forgot_password'))
+    form=ResetPasswordForm()
+    if form.validate_on_submit():
+        user=User.query.filter_by(email=email).first()
+        if user:
+            user.password=generate_password_hash(form.password.data)
+            db.session.commit()
+            flash('Your password has been reset successfully',category='success')
+            return redirect(url_for('views.login_page'))
+        else:
+            flash("User not found",category='danger')
+            return redirect(url_for('views.forgot_password'))
+    return render_template('reset_password.html',form=form,token=token)
+
 
 @views.route('/dashboard')
 @login_required

@@ -1,7 +1,7 @@
 from flask import current_app
 from flask_mail import Message
 from itsdangerous import URLSafeTimedSerializer
-from .import mail
+from .extension import mail
 
 
 def generate_reset_token(email): #Generate  a secure token for password reset
