@@ -1,8 +1,9 @@
 from .models import User,Task,db
-from flask import render_template,redirect,url_for,flash,Blueprint,session,request
-from .forms import RegisterForm,LoginForm,ForgotPasswordForm,ResetPasswordForm
+from flask import render_template,redirect,url_for,flash,Blueprint,session,request,get_flashed_messages
+from .forms import RegisterForm,LoginForm,ForgotPasswordForm,ResetPasswordForm,TaskForm
 from werkzeug.security import generate_password_hash,check_password_hash
 from .utiils import generate_reset_token,verify_reset_token,send_reset_email
+from datetime import datetime
 views=Blueprint('views',__name__)
 
 def login_required(f):
@@ -108,7 +109,14 @@ def reset_password(token):
 @views.route('/dashboard')
 @login_required
 def dashboard_page():
-    return render_template('dashboard.html')
+    get_flashed_messages()
+    tasks=Task.query.filter_by(user_id=session['user_id']).order_by(Task.created_at.desc()).all()
+    total_tasks=Task.query.filter_by(user_id=session['user_id']).count()
+    completed_tasks=Task.query.filter_by(user_id=session['user_id'],completed=True).count()
+    pending_tasks=Task.query.filter_by(user_id=session['user_id'],completed=False).count()
+    overdue_tasks=Task.query.filter_by(user_id=session['user_id'],completed=False).filter(Task.due_date<datetime.now()).count()
+    return render_template('dashboard.html',
+    tasks=tasks,total_tasks=total_tasks,completed_tasks=completed_tasks,pending_tasks=pending_tasks,overdue_tasks=overdue_tasks)
 
 
 @views.route('/logout')
@@ -117,3 +125,27 @@ def logout_page():
     flash('You have been logged out!',category='success')
     return redirect(url_for('views.login_page'))
 
+
+@views.route('/new_task',methods=['GET','POST'])
+@login_required
+def new_task():
+    form=TaskForm()
+    if form.validate_on_submit():
+        due_date = datetime.combine(form.due_date.data, datetime.min.time())
+        task=Task(
+            title=form.title.data,
+            descp=form.descp.data,
+            due_date=due_date,
+            priority=form.priority.data,
+            user_id=session['user_id'],
+            completed=False
+        )
+        try:
+            db.session.add(task)
+            db.session.commit()
+            flash('Task created successfully!',category='success')
+            return redirect(url_for('views.dashboard_page'))
+        except Exception as e:
+            db.session.rollback()
+            flash('Eroor creating task. Please try again',category='danger')
+    return render_template('new_task.html',form=form)

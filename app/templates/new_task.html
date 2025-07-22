@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reset Password - Task Manager</title>
+    <title>Create New Task - Task Manager</title>
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo.png') }}">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -42,11 +42,11 @@
     <div class="relative min-h-screen flex items-center justify-center px-4 py-8">
         <div class="w-full max-w-md animate-fade-in">
             <div class="text-center mb-8">
-                <a href="{{ url_for('views.login_page') }}" class="inline-flex items-center text-blue-600 hover:text-blue-800 transition-colors duration-300 mb-6">
+                <a href="{{ url_for('views.dashboard_page') }}" class="inline-flex items-center text-blue-600 hover:text-blue-800 transition-colors duration-300 mb-6">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
                     </svg>
-                    Back to Login
+                    Back to Dashboard
                 </a>
 
                 <div class="mx-auto mb-4 w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg animate-bounce-gentle">
@@ -55,8 +55,8 @@
                     </svg>
                 </div>
 
-                <h1 class="text-3xl font-bold text-gray-800 mb-2">Set New Password</h1>
-                <p class="text-gray-600">Enter your new password below</p>
+                <h1 class="text-3xl font-bold text-gray-800 mb-2">Create New Task</h1>
+                <p class="text-gray-600">Add a new task to your list</p>
             </div>
 
             <div class="bg-white/70 backdrop-blur-sm rounded-2xl shadow-xl p-8 animate-slide-up">
@@ -67,38 +67,72 @@
                         {% endfor %}
                     {% endif %}
                 {% endwith %}
-                <form method="POST" action="{{ url_for('views.reset_password', token=token) }}" class="space-y-6">
+                <form method="POST" action="{{ url_for('views.new_task') }}" class="space-y-6">
                     {{ form.hidden_tag() }}
                     <div>
-                        <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
-                            {{ form.password.label }}
+                        <label for="title" class="block text-sm font-medium text-gray-700 mb-2">
+                            {{ form.title.label }}
                         </label>
                         <div class="relative">
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
                                 </svg>
                             </div>
-                            {{ form.password(class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 bg-white/80 backdrop-blur-sm", id="password", placeholder="Enter new password") }}
-                            {% if form.password.errors %}
-                                <p class="text-red-500 text-xs mt-1">{{ form.password.errors[0] }}</p>
+                            {{ form.title(class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 bg-white/80 backdrop-blur-sm", id="title", placeholder="Enter task title") }}
+                            {% if form.title.errors %}
+                                <p class="text-red-500 text-xs mt-1">{{ form.title.errors[0] }}</p>
                             {% endif %}
                         </div>
                     </div>
 
                     <div>
-                        <label for="confirm_password" class="block text-sm font-medium text-gray-700 mb-2">
-                            {{ form.confirm_password.label }}
+                        <label for="descp" class="block text-sm font-medium text-gray-700 mb-2">
+                            {{ form.descp.label }}
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 pt-3 flex items-start pointer-events-none">
+                                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
+                                </svg>
+                            </div>
+                            {{ form.descp(class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 bg-white/80 backdrop-blur-sm", id="descp", placeholder="Enter task description") }}
+                            {% if form.descp.errors %}
+                                <p class="text-red-500 text-xs mt-1">{{ form.descp.errors[0] }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="due_date" class="block text-sm font-medium text-gray-700 mb-2">
+                            {{ form.due_date.label }}
                         </label>
                         <div class="relative">
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                                 </svg>
                             </div>
-                            {{ form.confirm_password(class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 bg-white/80 backdrop-blur-sm", id="confirm_password", placeholder="Confirm new password") }}
-                            {% if form.confirm_password.errors %}
-                                <p class="text-red-500 text-xs mt-1">{{ form.confirm_password.errors[0] }}</p>
+                            {{ form.due_date(class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 bg-white/80 backdrop-blur-sm", id="due_date", placeholder="YYYY-MM-DD") }}
+                            {% if form.due_date.errors %}
+                                <p class="text-red-500 text-xs mt-1">{{ form.due_date.errors[0] }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="priority" class="block text-sm font-medium text-gray-700 mb-2">
+                            {{ form.priority.label }}
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 4h13m0 0v13m-7-7h7m-7 0V4"/>
+                                </svg>
+                            </div>
+                            {{ form.priority(class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 bg-white/80 backdrop-blur-sm", id="priority") }}
+                            {% if form.priority.errors %}
+                                <p class="text-red-500 text-xs mt-1">{{ form.priority.errors[0] }}</p>
                             {% endif %}
                         </div>
                     </div>
