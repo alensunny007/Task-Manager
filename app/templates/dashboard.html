@@ -37,9 +37,8 @@
                     <div class="w-12 h-12 rounded-lg bg-blue-500 flex items-center justify-center text-white">
                         <i class="fas fa-tasks"></i>
                     </div>
-                    <span class="text-green-500 text-sm font-medium">+10%</span>
                 </div>
-                <h3 class="text-3xl font-bold text-gray-800">{{ total_tasks }}</h3>
+                <h3 class="text-3xl font-bold text-gray-800" id="total-tasks">{{ total_tasks }}</h3>
                 <p class="text-gray-500 mt-1">Total Tasks</p>
             </div>
             <div class="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition-shadow duration-300">
@@ -47,9 +46,8 @@
                     <div class="w-12 h-12 rounded-lg bg-green-500 flex items-center justify-center text-white">
                         <i class="fas fa-check-circle"></i>
                     </div>
-                    <span class="text-green-500 text-sm font-medium">+15%</span>
                 </div>
-                <h3 class="text-3xl font-bold text-gray-800">{{ completed_tasks }}</h3>
+                <h3 class="text-3xl font-bold text-gray-800" id="completed-tasks">{{ completed_tasks }}</h3>
                 <p class="text-gray-500 mt-1">Completed</p>
             </div>
             <div class="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition-shadow duration-300">
@@ -57,9 +55,8 @@
                     <div class="w-12 h-12 rounded-lg bg-yellow-500 flex items-center justify-center text-white">
                         <i class="fas fa-clock"></i>
                     </div>
-                    <span class="text-red-500 text-sm font-medium">-5%</span>
                 </div>
-                <h3 class="text-3xl font-bold text-gray-800">{{ pending_tasks }}</h3>
+                <h3 class="text-3xl font-bold text-gray-800" id="pending-tasks">{{ pending_tasks }}</h3>
                 <p class="text-gray-500 mt-1">Pending</p>
             </div>
             <div class="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition-shadow duration-300">
@@ -67,9 +64,8 @@
                     <div class="w-12 h-12 rounded-lg bg-red-500 flex items-center justify-center text-white">
                         <i class="fas fa-exclamation-circle"></i>
                     </div>
-                    <span class="text-red-500 text-sm font-medium">-20%</span>
                 </div>
-                <h3 class="text-3xl font-bold text-gray-800">{{ overdue_tasks }}</h3>
+                <h3 class="text-3xl font-bold text-gray-800" id="overdue-tasks">{{ overdue_tasks }}</h3>
                 <p class="text-gray-500 mt-1">Overdue</p>
             </div>
         </div>
@@ -84,25 +80,107 @@
             </div>
             <div class="space-y-4">
                 {% for task in tasks %}
-                <div class="flex items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                    <div class="task-checkbox w-5 h-5 rounded-full border-2 {{ 'bg-green-500 border-green-500' if task.completed else 'border-blue-500' }} flex items-center justify-center cursor-pointer mr-4" data-task-id="{{ task.id }}">
-                        <i class="fas fa-check {{ '' if task.completed else 'hidden' }}"></i>
-                    </div>
+                <div class="task-item flex items-center p-4 rounded-lg transition-colors {{ 'bg-green-50' if task.completed else 'bg-gray-50 hover:bg-gray-100' }}" data-task-id="{{ task.id }}">
+                    <input type="checkbox" 
+                           class="task-checkbox h-5 w-5 text-green-500 focus:ring-green-500 border-gray-300 rounded cursor-pointer mr-4" 
+                           {% if task.completed %}checked disabled{% endif %}
+                           data-task-id="{{ task.id }}">
                     <div class="flex-1">
-                        <p class="font-semibold text-gray-800">{{ task.title }}</p>
+                        <p class="font-semibold text-gray-800 {{ 'line-through text-gray-500' if task.completed else '' }}">{{ task.title }}</p>
                         <p class="text-sm text-gray-500">{{ task.descp|truncate(100) }}</p>
                         <p class="text-sm text-gray-500">
                             Due: {{ task.due_date.strftime('%Y-%m-%d') if task.due_date else 'No due date' }} •
                             Created: {{ task.created_at.strftime('%Y-%m-%d') }} •
-                            <span class="bg-{{ 'red-100 text-red-600' if task.priority == 'High' else 'yellow-100 text-yellow-600' if task.priority == 'Medium' else 'green-100 text-green-600' if task.priority else 'gray-100 text-gray-600' }} px-2 py-1 rounded-full text-xs">{{ task.priority or 'No priority' }}</span>
+                            <span class="bg-{{ 'red-100 text-red-600' if task.priority == 'High' else 'yellow-100 text-yellow-600' if task.priority == 'Medium' else 'green-100 text-green-600' if task.priority else 'gray-100 text-gray-600' }} px-2 py-1 rounded-full text-xs">{{ task.priority or 'No priority' }}</span> •
+                            Status: <span class="task-status">{{ 'Completed' if task.completed else 'Pending' }}</span>
                         </p>
                     </div>
+                    <button class="delete-task-btn text-red-500 hover:text-red-600 transition-colors" data-task-id="{{ task.id }}" title="Delete Task">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
                 </div>
                 {% else %}
-                <p class="text-gray-500 text-center">No tasks found.</p>
+                <p class="text-gray-500 text-center">No tasks found. Add a new task to get started!</p>
                 {% endfor %}
             </div>
         </div>
     </div>
+
+    <script>
+        async function markTaskComplete(taskId) {
+            const response = await fetch(`/complete_task/${taskId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token() }}'
+                }
+            });
+            const result = await response.json();
+            if (result.success) {
+                // Update task status
+                const taskItem = document.querySelector(`.task-item[data-task-id="${taskId}"]`);
+                taskItem.classList.remove('bg-gray-50', 'hover:bg-gray-100');
+                taskItem.classList.add('bg-green-50');
+                const checkbox = taskItem.querySelector('.task-checkbox');
+                checkbox.checked = true;
+                checkbox.disabled = true;
+                taskItem.querySelector('p.font-semibold').classList.add('line-through', 'text-gray-500');
+                taskItem.querySelector('.task-status').textContent = 'Completed';
+
+                // Update counts
+                document.getElementById('total-tasks').textContent = result.total_tasks;
+                document.getElementById('completed-tasks').textContent = result.completed_tasks;
+                document.getElementById('pending-tasks').textContent = result.pending_tasks;
+                document.getElementById('overdue-tasks').textContent = result.overdue_tasks;
+            } else {
+                alert(result.error || 'Error marking task as completed');
+            }
+        }
+
+        async function deleteTask(taskId) {
+            if (!confirm('Are you sure you want to delete this task?')) return;
+            const response = await fetch(`/delete_task/${taskId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token() }}'
+                }
+            });
+            const result = await response.json();
+            if (result.success) {
+                // Remove task from DOM
+                const taskItem = document.querySelector(`.task-item[data-task-id="${taskId}"]`);
+                taskItem.remove();
+                // Update counts
+                document.getElementById('total-tasks').textContent = result.total_tasks;
+                document.getElementById('completed-tasks').textContent = result.completed_tasks;
+                document.getElementById('pending-tasks').textContent = result.pending_tasks;
+                document.getElementById('overdue-tasks').textContent = result.overdue_tasks;
+                // Show "No tasks" message if no tasks remain
+                if (!document.querySelectorAll('.task-item').length) {
+                    const taskList = document.querySelector('.space-y-4');
+                    taskList.innerHTML = '<p class="text-gray-500 text-center">No tasks found. Add a new task to get started!</p>';
+                }
+            } else {
+                alert(result.error || 'Error deleting task');
+            }
+        }
+
+        // Add event listeners to checkboxes
+        document.querySelectorAll('.task-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                if (this.checked) {
+                    markTaskComplete(this.dataset.taskId);
+                }
+            });
+        });
+
+        // Add event listeners to delete buttons
+        document.querySelectorAll('.delete-task-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                deleteTask(this.dataset.taskId);
+            });
+        });
+    </script>
 </body>
 </html>

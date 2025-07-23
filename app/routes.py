@@ -1,5 +1,5 @@
 from .models import User,Task,db
-from flask import render_template,redirect,url_for,flash,Blueprint,session,request,get_flashed_messages
+from flask import render_template,redirect,url_for,flash,Blueprint,session,request,get_flashed_messages,jsonify,current_app
 from .forms import RegisterForm,LoginForm,ForgotPasswordForm,ResetPasswordForm,TaskForm
 from werkzeug.security import generate_password_hash,check_password_hash
 from .utiils import generate_reset_token,verify_reset_token,send_reset_email
@@ -149,3 +149,56 @@ def new_task():
             db.session.rollback()
             flash('Eroor creating task. Please try again',category='danger')
     return render_template('new_task.html',form=form)
+
+@views.route('/complete_task/<int:task_id>',methods=['POST'])
+@login_required
+def complete_task(task_id):
+    with current_app.app_context():
+        task=Task.query.filter_by(id=task_id,user_id=session['user_id']).first()
+        if not task:
+            return jsonify({'error':'Task not found or you do not have permission'}),404
+        try:
+            task.completed=True
+            db.session.commit()
+            total_tasks=Task.query.filter_by(user_id=session['user_id']).count()
+            completed_tasks=Task.query.filter_by(user_id=session['user_id'],completed=True).count()
+            pending_tasks=Task.query.filter_by(user_id=session['user_id'],completed=False).count()
+            overdue_tasks=Task.query.filter_by(user_id=session['user_id'],completed=False).filter(Task.due_date<datetime.now()).count()
+            return jsonify({
+                'success': True,
+                'task_id': task.id,
+                'completed': task.completed,
+                'total_tasks': total_tasks,
+                'completed_tasks': completed_tasks,
+                'pending_tasks': pending_tasks,
+                'overdue_tasks': overdue_tasks
+            })
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({'error':'Error marking task as completed'}),500
+        
+@views.route('/delete_task/<int:task_id>',methods=['POST'])
+@login_required
+def delete_task(task_id):
+    with current_app.app_context():
+        task=Task.query.filter_by(id=task_id,user_id=session['user_id']).first()
+        if not task:
+            return jsonify({'error':'Task not found or you do not have the permission'}),404
+        try:
+            db.session.delete(task)
+            db.session.commit()
+            total_tasks=Task.query.filter_by(user_id=session['user_id']).count()
+            completed_tasks=Task.query.filter_by(user_id=session['user_id'],completed=True).count()
+            pending_tasks = Task.query.filter_by(user_id=session['user_id'], completed=False).count()
+            overdue_tasks = Task.query.filter_by(user_id=session['user_id'], completed=False).filter(Task.due_date < datetime.now()).count()
+            return jsonify({
+                'success': True,
+                'task_id': task.id,
+                'total_tasks': total_tasks,
+                'completed_tasks': completed_tasks,
+                'pending_tasks': pending_tasks,
+                'overdue_tasks': overdue_tasks
+            })
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({'error':'Error deleting task'}),500
