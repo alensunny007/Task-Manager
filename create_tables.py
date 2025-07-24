@@ -10,7 +10,10 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 try:
     # Import your app and database
-    from app import app, db
+    from app import create_app
+    from app.models import db
+
+    app=create_app()
     
     # Create application context
     with app.app_context():
